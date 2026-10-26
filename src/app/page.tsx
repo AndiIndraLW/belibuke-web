@@ -2,20 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-
-interface FloralItem {
-  id: string;
-  name: string;
-  category: "BOUQUETS" | "WEDDING DECOR" | "HAND BOUQUETS";
-  image: string;
-}
+import Link from "next/link";
+import { floralItems, categories, formatPrice } from "@/data/products";
 
 export default function Home() {
-  const [activeCategory, setActiveCategory] = useState<"ALL" | "BOUQUETS" | "WEDDING DECOR" | "HAND BOUQUETS">("ALL");
-  const [favorites, setFavorites] = useState<Record<string, boolean>>({});
-  const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>({});
-  const [animatingItems, setAnimatingItems] = useState<Record<string, boolean>>({});
-  const [cartCount, setCartCount] = useState(0);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCatalogDropdownOpen, setIsCatalogDropdownOpen] = useState(false);
@@ -44,139 +34,13 @@ export default function Home() {
   const handleNextHeroSlide = () => {
     setCurrentHeroSlide(prev => (prev + 1) % heroImages.length);
   };
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     service: "bouquet",
     message: "",
   });
-
-  const floralItems: FloralItem[] = [
-    {
-      id: "bouquet-roses-1",
-      name: "Rose Blush",
-      category: "BOUQUETS",
-      image: "/assets/bouquet_roses.png",
-    },
-    {
-      id: "bouquet-luxury-1",
-      name: "Luxe Blooms",
-      category: "BOUQUETS",
-      image: "/assets/bouquet_luxury.png",
-    },
-    {
-      id: "wedding-classic-1",
-      name: "Classic Rolls",
-      category: "WEDDING DECOR",
-      image: "/assets/wedding_car_classic.png",
-    },
-    {
-      id: "wedding-vintage-1",
-      name: "Vintage Dreams",
-      category: "WEDDING DECOR",
-      image: "/assets/wedding_car_vintage.png",
-    },
-    {
-      id: "bouquet-roses-2",
-      name: "Pastel Whispers",
-      category: "HAND BOUQUETS",
-      image: "/assets/bouquet_roses.png",
-    },
-    {
-      id: "bouquet-luxury-2",
-      name: "White Elegance",
-      category: "HAND BOUQUETS",
-      image: "/assets/bouquet_luxury.png",
-    },
-    {
-      id: "wedding-vintage-2",
-      name: "Royal Cabrio",
-      category: "WEDDING DECOR",
-      image: "/assets/wedding_car_vintage.png",
-    },
-    {
-      id: "wedding-classic-2",
-      name: "Graceful Grace",
-      category: "WEDDING DECOR",
-      image: "/assets/wedding_car_classic.png",
-    },
-    {
-      id: "bouquet-roses-3",
-      name: "Sunset Glow",
-      category: "BOUQUETS",
-      image: "/assets/bouquet_roses.png",
-    },
-    {
-      id: "bouquet-luxury-3",
-      name: "Garden Dream",
-      category: "BOUQUETS",
-      image: "/assets/bouquet_luxury.png",
-    },
-    {
-      id: "wedding-classic-3",
-      name: "Ivory Carriage",
-      category: "WEDDING DECOR",
-      image: "/assets/wedding_car_classic.png",
-    },
-    {
-      id: "wedding-vintage-3",
-      name: "Blossom Ride",
-      category: "WEDDING DECOR",
-      image: "/assets/wedding_car_vintage.png",
-    },
-    {
-      id: "bouquet-roses-4",
-      name: "Crimson Romance",
-      category: "HAND BOUQUETS",
-      image: "/assets/bouquet_roses.png",
-    },
-    {
-      id: "bouquet-luxury-4",
-      name: "Serene Blue",
-      category: "HAND BOUQUETS",
-      image: "/assets/bouquet_luxury.png",
-    },
-    {
-      id: "wedding-classic-4",
-      name: "Majesty Rolls",
-      category: "WEDDING DECOR",
-      image: "/assets/wedding_car_classic.png",
-    },
-    {
-      id: "wedding-vintage-4",
-      name: "Retro Romance",
-      category: "WEDDING DECOR",
-      image: "/assets/wedding_car_vintage.png",
-    },
-  ];
-
-  const filteredItems = activeCategory === "ALL"
-    ? floralItems
-    : floralItems.filter(item => item.category === activeCategory);
-
-  const toggleFavorite = (id: string) => {
-    setFavorites(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
-  };
-
-  const handleAddToCart = (id: string) => {
-    setSelectedItems(prev => {
-      const isSelected = !prev[id];
-      if (isSelected) {
-        setCartCount(c => c + 1);
-      } else {
-        setCartCount(c => Math.max(0, c - 1));
-      }
-      return { ...prev, [id]: isSelected };
-    });
-
-    setAnimatingItems(prev => ({ ...prev, [id]: true }));
-    setTimeout(() => {
-      setAnimatingItems(prev => ({ ...prev, [id]: false }));
-    }, 300);
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -192,18 +56,8 @@ export default function Home() {
     setIsCatalogDropdownOpen(false);
   };
 
-  const handleCatalogFilter = (category: "BOUQUETS" | "WEDDING DECOR" | "HAND BOUQUETS") => {
-    setActiveCategory(category);
-    closeMenu();
-    setTimeout(() => {
-      document.getElementById("catalog-section")?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
-  };
-
   return (
     <>
-
-
       {/* Hamburger Sidebar Drawer Menu */}
       <div
         className={`drawer-overlay ${isMenuOpen ? "active" : ""}`}
@@ -221,20 +75,20 @@ export default function Home() {
         </div>
 
         <nav className="drawer-nav">
-          <a
-            href="#"
+          <Link
+            href="/"
             className="drawer-nav-item"
-            onClick={(e) => { e.preventDefault(); closeMenu(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+            onClick={closeMenu}
           >
             Home
-          </a>
+          </Link>
 
           <div>
             <button
               className={`drawer-nav-item drawer-dropdown-trigger ${isCatalogDropdownOpen ? "expanded" : ""}`}
               onClick={() => setIsCatalogDropdownOpen(!isCatalogDropdownOpen)}
             >
-              Catalog
+              Categories
               <svg
                 className="dropdown-arrow"
                 width="16"
@@ -250,26 +104,26 @@ export default function Home() {
             </button>
 
             <div className={`drawer-submenu ${isCatalogDropdownOpen ? "open" : ""}`}>
-              <button
-                className="drawer-submenu-item"
-                onClick={() => handleCatalogFilter("BOUQUETS")}
-              >
-                Flower Bouquet
-              </button>
-              <button
-                className="drawer-submenu-item"
-                onClick={() => handleCatalogFilter("HAND BOUQUETS")}
-              >
-                Hand Bouquet
-              </button>
-              <button
-                className="drawer-submenu-item"
-                onClick={() => handleCatalogFilter("WEDDING DECOR")}
-              >
-                Wedding Car
-              </button>
+              {categories.map((cat) => (
+                <Link
+                  key={cat.slug}
+                  href={`/category/${cat.slug}`}
+                  className="drawer-submenu-item"
+                  onClick={closeMenu}
+                >
+                  {cat.name}
+                </Link>
+              ))}
             </div>
           </div>
+
+          <a
+            href="#who-are-we"
+            className="drawer-nav-item"
+            onClick={(e) => { e.preventDefault(); closeMenu(); document.getElementById("who-are-we")?.scrollIntoView({ behavior: "smooth" }); }}
+          >
+            Who Are We
+          </a>
 
           <a
             href="#booking-contact"
@@ -283,7 +137,7 @@ export default function Home() {
 
       {/* Top Header Bar */}
       <header className="header-bar">
-        {/* Hamburger Menu Toggle Button (Always visible on all screens!) */}
+        {/* Hamburger Menu Toggle Button */}
         <button
           className="header-menu-btn"
           aria-label="Toggle menu"
@@ -300,42 +154,14 @@ export default function Home() {
           belibuké
         </div>
 
-        <button className="cart-icon-btn" aria-label="Cart" onClick={() => alert(`Cart has ${cartCount} items booked!`)}>
-          <div style={{ position: "relative" }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="9" cy="21" r="1" />
-              <circle cx="20" cy="21" r="1" />
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-            </svg>
-            {cartCount > 0 && (
-              <span style={{
-                position: "absolute",
-                top: "-10px",
-                right: "-10px",
-                backgroundColor: "var(--color-pink-hot)",
-                color: "white",
-                fontSize: "0.7rem",
-                borderRadius: "50%",
-                width: "18px",
-                height: "18px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: "bold",
-                border: "2px solid white"
-              }}>
-                {cartCount}
-              </span>
-            )}
-          </div>
-        </button>
+        {/* Empty placeholder for symmetrical header alignment */}
+        <div style={{ width: "24px" }} />
       </header>
 
-      {/* NEW HERO DESIGN (Stripes on Left, Scalloped Image on Right) */}
+      {/* HERO DESIGN */}
       <section className="new-hero-grid">
-        {/* Left Column (Stripes background & Badge) */}
+        {/* Left Column */}
         <div className="hero-left-col">
-          {/* Floating flower elements */}
           <div className="hero-decor-flower-orange">
             <svg width="40" height="40" viewBox="0 0 100 100" fill="currentColor">
               <circle cx="50" cy="50" r="12" />
@@ -361,7 +187,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Right Column (Borderless auto-sliding product showcase) */}
+        {/* Right Column */}
         <div className="hero-right-col">
           <div className="hero-slider-container">
             {heroImages.map((imageSrc, idx) => (
@@ -439,7 +265,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* NEW BESTSELLERS SECTION WITH CAROUSEL */}
+      {/* BESTSELLERS SECTION */}
       <section className="bestsellers-section">
         <div className="bestsellers-header">
           <div className="bestsellers-title-badge">
@@ -460,272 +286,95 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Carousel Grid Track */}
+        {/* Bestseller Items Track */}
         <div className="carousel-track">
-          {/* Card 1 */}
-          <article className={`item-card ${selectedItems["bouquet-roses-1"] ? "selected" : ""} ${animatingItems["bouquet-roses-1"] ? "pulse-effect" : ""}`}>
-            <div className="card-image-wrapper">
-              <span className="hit-badge">Hit</span>
-              <button
-                className="favorite-btn"
-                onClick={() => toggleFavorite("bouquet-roses-1")}
-                aria-label="Add to favorites"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill={favorites["bouquet-roses-1"] ? "var(--color-coral)" : "none"}
-                  stroke="var(--color-coral)"
-                  strokeWidth="2.5"
+          {floralItems.filter(item => item.tag === "BEST SELLER").slice(0, 3).map(item => (
+            <article className="item-card" key={item.id}>
+              <Link href={`/product/${item.id}`} className="card-image-link">
+                <div className="card-image-wrapper">
+                  <span className="tag-badge tag-bestseller">Best Seller</span>
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    className="card-image"
+                    width={400}
+                    height={400}
+                  />
+                </div>
+              </Link>
+              <div className="card-footer-bar">
+                <div className="card-title-group">
+                  <Link href={`/product/${item.id}`} style={{ textDecoration: "none" }}>
+                    <h2 className="item-title">{item.name}</h2>
+                  </Link>
+                  <span className="item-card-price">{formatPrice(item.price)}</span>
+                </div>
+                <Link
+                  href={`/product/${item.id}`}
+                  className="item-booking-btn"
+                  aria-label={`Buy ${item.name}`}
                 >
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                </svg>
-              </button>
-              <Image
-                src="/assets/bouquet_roses.png"
-                alt="Rose Blush"
-                className="card-image"
-                width={400}
-                height={400}
-              />
-            </div>
-            <div className="card-footer-bar">
-              <h2 className="item-title">Rose Blush</h2>
-              <button className="item-booking-btn" onClick={() => handleAddToCart("bouquet-roses-1")} aria-label="Book">
-                {selectedItems["bouquet-roses-1"] ? (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
                   </svg>
-                ) : (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" />
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-                  </svg>
-                )}
-              </button>
-            </div>
-          </article>
-
-          {/* Card 2 */}
-          <article className={`item-card ${selectedItems["bouquet-luxury-1"] ? "selected" : ""} ${animatingItems["bouquet-luxury-1"] ? "pulse-effect" : ""}`}>
-            <div className="card-image-wrapper">
-              <span className="hit-badge">Hit</span>
-              <button
-                className="favorite-btn"
-                onClick={() => toggleFavorite("bouquet-luxury-1")}
-                aria-label="Add to favorites"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill={favorites["bouquet-luxury-1"] ? "var(--color-coral)" : "none"}
-                  stroke="var(--color-coral)"
-                  strokeWidth="2.5"
-                >
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                </svg>
-              </button>
-              <Image
-                src="/assets/bouquet_luxury.png"
-                alt="Luxe Blooms"
-                className="card-image"
-                width={400}
-                height={400}
-              />
-            </div>
-            <div className="card-footer-bar">
-              <h2 className="item-title">Luxe Blooms</h2>
-              <button className="item-booking-btn" onClick={() => handleAddToCart("bouquet-luxury-1")} aria-label="Book">
-                {selectedItems["bouquet-luxury-1"] ? (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                ) : (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" />
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-                  </svg>
-                )}
-              </button>
-            </div>
-          </article>
-
-          {/* Card 3 */}
-          <article className={`item-card ${selectedItems["wedding-classic-1"] ? "selected" : ""} ${animatingItems["wedding-classic-1"] ? "pulse-effect" : ""}`}>
-            <div className="card-image-wrapper">
-              <button
-                className="favorite-btn"
-                onClick={() => toggleFavorite("wedding-classic-1")}
-                aria-label="Add to favorites"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill={favorites["wedding-classic-1"] ? "var(--color-coral)" : "none"}
-                  stroke="var(--color-coral)"
-                  strokeWidth="2.5"
-                >
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                </svg>
-              </button>
-              <Image
-                src="/assets/wedding_car_classic.png"
-                alt="Classic Rolls"
-                className="card-image"
-                width={400}
-                height={400}
-              />
-            </div>
-            <div className="card-footer-bar">
-              <h2 className="item-title">Classic Rolls</h2>
-              <button className="item-booking-btn" onClick={() => handleAddToCart("wedding-classic-1")} aria-label="Book">
-                {selectedItems["wedding-classic-1"] ? (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                ) : (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" />
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-                  </svg>
-                )}
-              </button>
-            </div>
-          </article>
-        </div>
-
-        {/* Carousel arrows */}
-        <div className="bestsellers-arrows-row">
-          <button className="carousel-arrow-btn" aria-label="Previous" onClick={() => alert("Carousel scroll left!")}>&larr;</button>
-          <button className="carousel-arrow-btn" aria-label="Next" onClick={() => alert("Carousel scroll right!")}>&rarr;</button>
+                </Link>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
 
-      {/* Categories Showcase Navigation Bar */}
-      <nav id="catalog-section" className="category-nav">
-        <button
-          onClick={() => setActiveCategory("ALL")}
-          className={`category-link ${activeCategory === "ALL" ? "active" : ""}`}
-        >
-          All
-        </button>
-        <span className="nav-divider"></span>
-        <button
-          onClick={() => setActiveCategory("BOUQUETS")}
-          className={`category-link ${activeCategory === "BOUQUETS" ? "active" : ""}`}
-        >
-          Bouquets
-        </button>
-        <span className="nav-divider"></span>
-        <button
-          onClick={() => setActiveCategory("HAND BOUQUETS")}
-          className={`category-link ${activeCategory === "HAND BOUQUETS" ? "active" : ""}`}
-        >
-          Hand Bouquets
-        </button>
-        <span className="nav-divider"></span>
-        <button
-          onClick={() => setActiveCategory("WEDDING DECOR")}
-          className={`category-link ${activeCategory === "WEDDING DECOR" ? "active" : ""}`}
-        >
-          Wedding Cars
-        </button>
-      </nav>
+      {/* CATEGORIES SECTION (REPLACED PRODUCTS CARD GRID UNDER BESTSELLERS) */}
+      <section id="categories-section" className="categories-showcase-section">
+        <div className="categories-section-header">
+          <span className="categories-section-badge">Explore Our Collection</span>
+          <h2 className="categories-section-title">Shop by Category</h2>
+          <p className="categories-section-subtitle">
+            Select a category below to discover our handcrafted floral arrangements.
+          </p>
+        </div>
 
-      {/* Filter and Search Action Row */}
-      <div className="filter-row">
-        <button className="filter-btn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="4" y1="21" x2="4" y2="14" />
-            <line x1="4" y1="10" x2="4" y2="3" />
-            <line x1="12" y1="21" x2="12" y2="12" />
-            <line x1="12" y1="8" x2="12" y2="3" />
-            <line x1="20" y1="21" x2="20" y2="16" />
-            <line x1="20" y1="12" x2="20" y2="3" />
-            <line x1="1" y1="14" x2="7" y2="14" />
-            <line x1="9" y1="8" x2="15" y2="8" />
-            <line x1="17" y1="16" x2="23" y2="16" />
-          </svg>
-          Filters
-        </button>
-
-        <button className="search-btn" aria-label="Search">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-        </button>
-      </div>
-
-      {/* Grid Container */}
-      <main className="grid-container">
-        {filteredItems.map(item => (
-          <article className={`item-card ${selectedItems[item.id] ? "selected" : ""} ${animatingItems[item.id] ? "pulse-effect" : ""}`} key={item.id}>
-            <div className="card-image-wrapper">
-              <button
-                className="favorite-btn"
-                onClick={() => toggleFavorite(item.id)}
-                aria-label="Add to favorites"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill={favorites[item.id] ? "var(--color-coral)" : "none"}
-                  stroke="var(--color-coral)"
-                  strokeWidth="2.5"
-                >
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                </svg>
-              </button>
-
-              <Image
-                src={item.image}
-                alt={item.name}
-                className="card-image"
-                width={400}
-                height={400}
-              />
-            </div>
-
-            <div className="card-footer-bar">
-              <h2 className="item-title">{item.name}</h2>
-              <button
-                className="item-booking-btn"
-                onClick={() => handleAddToCart(item.id)}
-                aria-label="Add to cart / Book"
-              >
-                {selectedItems[item.id] ? (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                ) : (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="9" cy="21" r="1" />
-                    <circle cx="20" cy="21" r="1" />
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-                  </svg>
+        {/* 4 Category Cards Grid */}
+        <div className="category-cards-grid">
+          {categories.map((category) => (
+            <Link
+              key={category.slug}
+              href={`/category/${category.slug}`}
+              className="category-card-item"
+            >
+              <div className="category-card-image-wrap">
+                {category.badge && (
+                  <span className="category-card-badge">{category.badge}</span>
                 )}
-              </button>
-            </div>
-          </article>
-        ))}
-      </main>
+                <Image
+                  src={category.image}
+                  alt={category.name}
+                  width={400}
+                  height={400}
+                  className="category-card-img"
+                />
+                <div className="category-card-overlay" />
+              </div>
 
-      {/* Pagination matches Warmness */}
-      <div className="pagination-container">
-        <span className="pagination-arrow">&lt;</span>
-        <span className="pagination-number active">1</span>
-        <span className="pagination-number">2</span>
-        <span className="pagination-number">3</span>
-        <span className="pagination-number">4</span>
-        <span className="pagination-arrow">&gt;</span>
-      </div>
+              <div className="category-card-body">
+                <div className="category-card-title-row">
+                  <h3 className="category-card-name">{category.name}</h3>
+                  <span className="category-card-arrow-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
+                  </span>
+                </div>
+                <p className="category-card-desc">{category.description}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
 
-      {/* CTA Banners matching Warmness */}
+      {/* CTA Banners */}
       <section className="cta-banners-container">
         <button className="cta-banner cta-pink" onClick={() => document.getElementById("booking-contact")?.scrollIntoView({ behavior: "smooth" })}>
           Bouquets Handcrafted
@@ -754,10 +403,75 @@ export default function Home() {
         </button>
       </section>
 
+      {/* WHO ARE WE SECTION */}
+      <section id="who-are-we" className="who-are-we-section">
+        <div className="who-are-we-container">
+          <div className="who-are-we-header">
+            <div className="who-are-we-badge">
+              About belibuké
+              <svg width="16" height="16" viewBox="0 0 100 100" fill="currentColor">
+                <circle cx="50" cy="50" r="12" />
+                <circle cx="50" cy="24" r="18" />
+                <circle cx="50" cy="76" r="18" />
+                <circle cx="24" cy="50" r="18" />
+                <circle cx="76" cy="50" r="18" />
+              </svg>
+            </div>
+            <h2 className="who-are-we-title">Who Are We</h2>
+            <p className="who-are-we-subtitle">
+              Crafting stories of love, elegance, and celebration through bespoke floral artistry in Jakarta.
+            </p>
+          </div>
+
+          <div className="who-are-we-grid">
+            <div className="who-are-we-card">
+              <div className="who-are-we-icon">🌸</div>
+              <h3>Master Florists</h3>
+              <p>
+                Our master artisans hand-select fresh seasonal blooms daily, curating individual arrangements with passion, precision, and extraordinary care.
+              </p>
+            </div>
+
+            <div className="who-are-we-card">
+              <div className="who-are-we-icon">🚘</div>
+              <h3>Bespoke Wedding Artistry</h3>
+              <p>
+                Specializing in luxury wedding car decorations and bespoke venue styling that transform your special day into a breathtaking visual masterpiece.
+              </p>
+            </div>
+
+            <div className="who-are-we-card">
+              <div className="who-are-we-icon">🌿</div>
+              <h3>Sustainably Sourced</h3>
+              <p>
+                We partner directly with ethical local growers to ensure top-tier freshness, vibrant color palettes, and long-lasting floral beauty.
+              </p>
+            </div>
+          </div>
+
+          <div className="who-are-we-stats">
+            <div className="stat-item">
+              <span className="stat-number">10,000+</span>
+              <span className="stat-label">Handcrafted Bouquets</span>
+            </div>
+            <div className="stat-divider"></div>
+            <div className="stat-item">
+              <span className="stat-number">500+</span>
+              <span className="stat-label">Wedding Cars Decorated</span>
+            </div>
+            <div className="stat-divider"></div>
+            <div className="stat-item">
+              <span className="stat-number">100%</span>
+              <span className="stat-label">Fresh Bloom Guarantee</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Contact & Booking split section */}
       <section id="booking-contact" className="contact-section">
         <div className="contact-layout-wrapper">
-          {/* Left Column: Info details */}
+          {/* Left Column */}
           <div className="contact-info-side">
             <h2>Book a Floral Design</h2>
             <p>Ready to bring your floral vision to life? Fill in the details to request a custom premium bouquet order or schedule a wedding car floral consultation with our master decorators.</p>
@@ -894,9 +608,8 @@ export default function Home() {
         </a>
       </div>
 
-      {/* Footer Block with Scallop Connector */}
+      {/* Footer */}
       <footer className="footer-scallop-wrap">
-
         <div className="footer-bottom-bar">
           <div className="footer-bottom-content">
             <div>&copy; 2026 belibuké</div>
